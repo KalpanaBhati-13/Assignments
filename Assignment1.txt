@@ -1,0 +1,1336 @@
+1.Create a file, assign permissions (read, write, execute) to different user categories (owner, group, others), and practice changing permissions using chmod.
+
+Step 1: Create a File
+Open your terminal and create a new file named example.txt:
+
+bash
+Copy
+Edit
+touch example.txt
+Verify the file creation:
+
+bash
+Copy
+Edit
+ls -l example.txt
+This will display the file's permissions, ownership, and other details.
+
+Step 2: Understand Default Permissions
+By default, a new file might have permissions like rw-r--r--, meaning:
+
+Owner: read and write permissions.
+
+Group: read-only permission.
+
+Others: read-only permission.
+cs.iastate.edu
++1
+learn2torials.com
++1
+en.wikipedia.org
++2
+en.wikipedia.org
++2
+linovox.com
++2
+
+Step 3: Assign Permissions Using chmod
+You can modify file permissions using symbolic or numeric modes.
+
+Symbolic Mode
+Add execute permission for the owner:
+
+bash
+Copy
+Edit
+  chmod u+x example.txt
+Remove write permission for the group:
+
+bash
+Copy
+Edit
+  chmod g-w example.txt
+Set read and execute permissions for others:
+
+bash
+Copy
+Edit
+  chmod o=rx example.txt
+Numeric (Octal) Mode
+Permissions are represented by numbers:
+
+Read: 4
+
+Write: 2
+
+Execute: 1
+
+Sum these values to set permissions:
+
+Owner: 7 (read, write, execute)
+
+Group: 5 (read, execute)
+
+Others: 4 (read)
+
+To apply these permissions:
+
+bash
+Copy
+Edit
+chmod 754 example.txt
+This sets:
+
+Owner: read, write, execute
+
+Group: read, execute
+
+Others: read
+geeksforgeeks.org
++2
+hostinger.in
++2
+gcore.com
++2
+
+Step 4: Verify Permissions
+After making changes, verify the permissions:
+
+bash
+Copy
+Edit
+ls -l example.txt
+
+2.Execute basic Linux commands (e.g., ls, cd, mkdir, rm, touch) to manipulate files and directories, with an emphasis on understanding their usage.
+
+1. ls – List Directory Contents
+The ls command displays the files and directories within the current directory.
+
+Basic Usage:
+
+bash
+Copy
+Edit
+ls
+
+Lists all non-hidden files and directories in the current directory.
+pcplanet.ca
+
+With -l option:
+
+bash
+Copy
+Edit
+ls -1
+
+Including hidden files:
+
+bash
+Copy
+Edit
+ls -a
+
+2. cd – Change Directory
+Navigate between directories using the cd command.
+
+Go to a specific directory:
+
+bash
+Copy
+Edit
+cd /path/to/directory
+
+Changes the current directory to the specified path.
+pcplanet.ca
+
+Move up one directory level:
+
+bash
+Copy
+Edit
+cd ..
+
+Moves up to the parent directory.
+baeldung.com
+
+Return to the home directory:
+
+bash
+Copy
+Edit
+cd ~
+
+Takes you back to your home directory.
+thenewstack.io
++1
+pcplanet.ca
++1
+
+3. pwd – Print Working Directory
+Displays the full path of the current directory.
+
+bash
+Copy
+Edit
+pwd
+
+Shows the absolute path of the current directory, helping you understand your location in the filesystem.
+
+4. mkdir – Make Directory
+Creates a new directory.
+
+bash
+Copy
+Edit
+mkdir new_directory
+
+Creates a directory named new_directory in the current location.
+
+5. touch – Create an Empty File
+Creates a new empty file or updates the timestamp of an existing file.
+
+bash
+Copy
+Edit
+touch newfile.txt
+
+Generates an empty file named newfile.txt.
+pcplanet.ca
++3
+dev.to
++3
+kallimera.com
++3
+
+6. rm – Remove Files or Directories
+Deletes files or directories.
+
+Remove a file:
+
+bash
+Copy
+Edit
+rm file.txt
+
+Deletes the file named file.txt.
+
+Remove a directory and its contents:
+
+bash
+Copy
+Edit
+rm -r directory_name
+
+Recursively deletes the directory and all its contents.
+
+Force removal without confirmation:
+
+bash
+Copy
+Edit
+rm -f file.txt
+
+3.Using the terminal, practice navigating through directories, listing file contents, and moving files to different locations.
+
+1. pwd – Print Working Directory
+To display your current directory:
+
+bash
+Copy
+Edit
+pwd
+This command shows the full path of your current directory.
+
+2. cd – Change Directory
+To change to a specific directory:
+
+bash
+Copy
+Edit
+cd /path/to/directory
+Go up one level:
+
+bash
+Copy
+Edit
+cd ..
+Return to the home directory:
+
+bash
+Copy
+Edit
+cd ~
+Navigate to the previous directory:
+
+bash
+Copy
+Edit
+cd -
+Listing Files
+3. ls – List Directory Contents
+To list files in the current directory:
+
+bash
+Copy
+Edit
+ls
+Detailed listing:
+
+bash
+Copy
+Edit
+ls -l
+Include hidden files:
+
+bash
+Copy
+Edit
+ls -a
+List files with human-readable sizes:
+
+bash
+Copy
+Edit
+ls -lh
+Moving and Renaming Files
+4. mv – Move or Rename Files
+To move a file:
+
+bash
+Copy
+Edit
+mv source_file /path/to/destination/
+To rename a file:
+
+bash
+Copy
+Edit
+mv old_name new_name
+Move multiple files:
+
+bash
+Copy
+Edit
+mv file1.txt file2.txt /path/to/destination/
+Prompt before overwriting:
+
+bash
+Copy
+Edit
+mv -i file.txt /path/to/destination/
+Verbose mode:
+
+bash
+Copy
+Edit
+mv -v file.txt /path/to/destination/
+
+4.Create a new user and group, set their permissions, and explore user management commands like useradd, usermod, and userdel.
+1. Create a New Group
+To create a new group named devteam:
+
+bash
+Copy
+Edit
+sudo groupadd devteam
+This command adds a new group called devteam to the system. You can verify its creation by checking the /etc/group file:
+
+bash
+Copy
+Edit
+getent group devteam
+2. Create a New User
+To create a new user named alice and assign her to the devteam group:
+
+bash
+Copy
+Edit
+sudo useradd -m -G devteam alice
+The -m option creates a home directory for the user.
+
+The -G option adds the user to supplementary groups; in this case, devteam.
+
+3. Set a Password for the User
+To set a password for alice:
+
+bash
+Copy
+Edit
+sudo passwd alice
+You'll be prompted to enter and confirm the new password.
+
+Modifying User and Group Information
+4. Add an Existing User to Another Group
+To add alice to an additional group, say admins, without removing her from devteam:
+
+bash
+Copy
+Edit
+sudo usermod -aG admins alice
+The -a (append) option ensures that alice remains a member of her current groups while being added to admins.
+
+5. Change a User's Primary Group
+To change alice's primary group to admins:
+
+bash
+Copy
+Edit
+sudo usermod -g admins alice
+This command modifies alice's primary group to admins.
+
+6. Change a User's Home Directory
+To change alice's home directory to /home/alice_new and move her files:
+
+bash
+Copy
+Edit
+sudo usermod -d /home/alice_new -m alice
+The -d option specifies the new home directory.
+
+The -m option moves the contents of the old home directory to the new one.
+
+7. Lock or Unlock a User Account
+To lock alice's account (disabling login):
+
+bash
+Copy
+Edit
+sudo usermod -L alice
+To unlock the account:
+
+bash
+Copy
+Edit
+sudo usermod -U alice
+
+Deleting Users and Groups
+8. Delete a User
+To delete alice without removing her home directory:
+
+bash
+Copy
+Edit
+sudo userdel alice
+To delete alice and her home directory:
+
+bash
+Copy
+Edit
+sudo userdel -r alice
+9. Delete a Group
+To delete the devteam group:
+
+bash
+Copy
+Edit
+sudo groupdel devteam
+Assigning Permissions to Users and Groups
+10. Create a Directory for Shared Access
+To create a directory named project:
+
+bash
+Copy
+Edit
+sudo mkdir /opt/project
+11. Change Group Ownership of the Directory
+To change the group ownership of project to devteam:
+
+bash
+Copy
+Edit
+sudo chown :devteam /opt/project
+12. Set Directory Permissions
+To set read, write, and execute permissions for the owner and group, and read and execute for others:
+
+bash
+Copy
+Edit
+sudo chmod 775 /opt/project
+To ensure that new files created within project inherit the group:
+
+bash
+Copy
+Edit
+sudo chmod g+s /opt/project
+This sets the setgid bit, ensuring new files inherit the group of the directory.
+
+Verifying User and Group Information
+To list all users:
+
+bash
+Copy
+Edit
+getent passwd
+To list all groups:
+
+bash
+Copy
+Edit
+getent group
+To check which groups a user belongs to:
+
+bash
+Copy
+Edit
+groups alice
+To view detailed information about a user:
+
+bash
+Copy
+Edit
+id alice
+
+5.Practices more linux commands
+
+File and Directory Operations
+ln – Create Hard and Symbolic Links
+
+Create a hard link:
+
+bash
+Copy
+Edit
+  ln original.txt link.txt
+Create a symbolic (symlink) link:
+digitalocean.com
++2
+techtarget.com
++2
+freecodecamp.org
++2
+
+bash
+Copy
+Edit
+  ln -s /path/to/original.txt symlink.txt
+The ln command creates hard or symbolic links to files. Hard links point directly to the file's inode, while symbolic links are shortcuts to the original file. 
+techtarget.com
+
+rmdir – Remove Empty Directories
+
+bash
+Copy
+Edit
+  rmdir empty_directory
+The rmdir command removes empty directories. For non-empty directories, use rm -r. 
+pcplanet.ca
+
+Searching and Viewing Files
+head – View the Beginning of a File
+
+bash
+Copy
+Edit
+  head -n 10 file.txt
+The head command displays the first few lines of a file. Use the -n option to specify the number of lines. 
+coderplayground.com
+
+tail – View the End of a File
+
+bash
+Copy
+Edit
+  tail -n 10 file.txt
+The tail command shows the last few lines of a file. It's particularly useful for monitoring log files. 
+coderplayground.com
+
+cut – Remove Sections from Each Line of Files
+
+bash
+Copy
+Edit
+  echo "name,age,location" | cut -d',' -f2
+The cut command removes sections from each line of files. In the example above, it extracts the second field (age) from a comma-separated string. 
+freecodecamp.org
+
+System Monitoring and Process Management
+htop – Interactive Process Viewer
+
+bash
+Copy
+Edit
+  htop
+The htop command provides an interactive, real-time view of the system's processes. It offers more features than the traditional top command. 
+kinsta.com
+
+killall – Kill Processes by Name
+
+bash
+Copy
+Edit
+  killall firefox
+The killall command terminates all processes with the specified name. Be cautious when using it, as it will kill all instances of the named process. 
+kinsta.com
+
+Disk Usage and File Compression
+tar – Archive Files
+
+Create a tarball archive:
+cloudthat.com
+
+bash
+Copy
+Edit
+  tar -cvf archive.tar directory/
+Extract a tarball archive:
+
+bash
+Copy
+Edit
+  tar -xvf archive.tar
+The tar command is used to create and extract tarball archives. The -c option creates an archive, -x extracts it, -v enables verbose mode, and -f specifies the filename.
+
+zip and unzip – Compress and Extract ZIP Files
+
+Create a ZIP archive:
+
+bash
+Copy
+Edit
+  zip archive.zip file1.txt file2.txt
+Extract a ZIP archive:
+cloudthat.com
+
+bash
+Copy
+Edit
+  unzip archive.zip
+The zip command compresses files into a ZIP archive, while unzip extracts them.
+
+Networking Commands
+scp – Secure Copy Files Between Hosts
+
+bash
+Copy
+Edit
+  scp file.txt user@remote:/path/to/destination/
+The scp command securely copies files between hosts over a network. It uses SSH for data transfer. 
+geeksforgeeks.org
+
+curl – Transfer Data from or to a Server
+
+bash
+Copy
+Edit
+  curl http://example.com
+The curl command transfers data from or to a server. It's widely used for interacting with APIs and downloading files. 
+geeksforgeeks.org
+
+Miscellaneous Useful Commands
+alias – Create Aliases for Commands
+
+bash
+Copy
+Edit
+  alias ll='ls -l'
+The alias command creates shortcuts for longer commands. In the example, ll is an alias for ls -l.
+
+history – Show Command History
+
+bash
+Copy
+Edit
+  history
+The history command displays a list of previously executed commands. It's useful for recalling and re-executing commands. 
+cloudthat.com
+
+man – Access Manual Pages
+
+bash
+Copy
+Edit
+  man ls
+The man command displays the manual pages for other commands, providing detailed information about their usage.
+
+6.Introduction to version control and Git basics, Git installation and configuration, Basic Git commands (init, add, commit, push, pull)
+
+On Linux (Debian/Ubuntu):
+bash
+Copy
+Edit
+sudo apt update
+sudo apt install git
+On macOS:
+bash
+Copy
+Edit
+brew install git
+On Windows:
+Download and install Git from the official website: git-scm.com.
+
+Configuring Git
+After installation, set your global username and email to associate your commits with your identity:
+learncodingusa.com
+
+bash
+Copy
+Edit
+git config --global user.name "Your Name"
+git config --global user.email "youremail@example.com"
+These settings apply to all repositories on your system. To configure them for a specific repository, omit the --global flag.
+learncodingusa.com
+
+Basic Git Workflow
+1. Initialize a Repository
+To start versioning your project:
+
+bash
+Copy
+Edit
+git init
+This creates a .git directory, marking the folder as a Git repository.
+
+2. Check Repository Status
+To see the current state of your working directory:
+
+bash
+Copy
+Edit
+git status
+This shows untracked, modified, or staged files.
+freecodecamp.org
++3
+freecodecamp.org
++3
+git-scm.com
++3
+
+3. Add Files to Staging Area
+To stage changes for the next commit:
+freecodecamp.org
++1
+geeksforgeeks.org
++1
+
+bash
+Copy
+Edit
+git add <file-name>
+To stage all changes:
+tutorialspoint.com
++3
+freecodecamp.org
++3
+freecodecamp.org
++3
+
+bash
+Copy
+Edit
+git add .
+4. Commit Changes
+To save your staged changes with a message:
+github.blog
++1
+cratecode.com
++1
+
+bash
+Copy
+Edit
+git commit -m "Your commit message"
+Each commit records the changes along with metadata like the author and timestamp.
+
+5. View Commit History
+To see the commit log:
+
+bash
+Copy
+Edit
+git log
+This displays a list of commits in reverse chronological order.
+freecodecamp.org
+
+Working with Remote Repositories
+6. Add a Remote Repository
+To link your local repository to a remote one (e.g., on GitHub):
+
+bash
+Copy
+Edit
+git remote add origin https://github.com/username/repository.git
+7. Push Changes to Remote Repository
+To upload your commits to the remote repository:
+
+bash
+Copy
+Edit
+git push -u origin main
+This pushes your changes to the main branch.
+
+8. Pull Changes from Remote Repository
+To fetch and merge changes from the remote repository:
+
+bash
+Copy
+Edit
+git pull origin main
+This updates your local repository with changes from the main branch.
+
+7.Setup a remote repository in Local , Add a file and commit or save the changes and push to master branch.
+
+1. Initialize a Local Git Repository
+Navigate to your project directory and initialize a Git repository:
+
+bash
+Copy
+Edit
+git init
+This command creates a .git directory, marking the folder as a Git repository.
+
+2. Create a New File
+Create a new file in your project directory:
+
+bash
+Copy
+Edit
+echo "Hello, Git!" > hello.txt
+This command creates a file named hello.txt with the content "Hello, Git!".
+
+3. Check the Status of the Repository
+To see the current state of your working directory:
+
+bash
+Copy
+Edit
+git status
+This shows untracked, modified, or staged files.
+
+4. Add the File to the Staging Area
+To stage the new file for the next commit:
+
+bash
+Copy
+Edit
+git add hello.txt
+To stage all changes:
+
+bash
+Copy
+Edit
+git add .
+This prepares the file to be committed.
+
+5. Commit the Changes
+To save your staged changes with a message:
+
+bash
+Copy
+Edit
+git commit -m "Add hello.txt with greeting"
+Each commit records the changes along with metadata like the author and timestamp.
+
+6. Add a Remote Repository
+To link your local repository to a remote one (e.g., on GitHub):
+
+bash
+Copy
+Edit
+git remote add origin https://github.com/username/repository.git
+Replace https://github.com/username/repository.git with your actual repository URL.
+
+To verify the remote repository:
+dev.to
++2
+freecodecamp.org
++2
+squash.io
++2
+
+bash
+Copy
+Edit
+git remote -v
+This command lists the remote repositories associated with your local repository.
+
+7. Push Changes to the Remote Repository
+To upload your commits to the remote repository's master branch:
+
+bash
+Copy
+Edit
+git push -u origin master
+The -u flag sets the upstream branch, so in the future, you can simply use git push without specifying the remote and branch.
+dev.to
+
+8. Verify the Changes on GitHub
+After pushing, go to your GitHub repository page. You should see the hello.txt file listed there.
+squash.io
+
+8.Merge types, Create a new branch then commit and push the changes to new branch and merge it with the master branch using pull request.
+
+1. Create a New Branch
+Start by creating and switching to a new branch.
+
+bash
+Copy
+Edit
+git checkout -b feature-branch
+This command creates a new branch named feature-branch and switches to it.
+
+2. Make Changes
+Edit or add files as needed. For example:
+
+bash
+Copy
+Edit
+echo "New feature implementation" > feature.txt
+This creates a new file feature.txt with the specified content.
+
+3. Stage and Commit Changes
+Add the changes to the staging area and commit them.
+
+bash
+Copy
+Edit
+git add feature.txt
+git commit -m "Implement new feature"
+This stages feature.txt and commits it with the message "Implement new feature".
+
+4. Push the Branch to Remote Repository
+Push your new branch to the remote repository on GitHub.
+
+bash
+Copy
+Edit
+git push -u origin feature-branch
+The -u flag sets the upstream branch, so in the future, you can simply use git push without specifying the remote and branch.
+
+5. Create a Pull Request
+After pushing the branch, go to your repository on GitHub.
+
+Navigate to the Pull Requests tab.
+geeksforgeeks.org
+
+Click on New Pull Request.
+
+Ensure that the base branch is main and the compare branch is feature-branch.
+geeksforgeeks.org
+
+Review the changes, add a title and description, and click Create Pull Request. 
+geeksforgeeks.org
++1
+devdojo.com
++1
+
+6. Merge the Pull Request
+Once the pull request is reviewed and approved:
+theclientside.net
++3
+github.com
++3
+geeksforgeeks.org
++3
+
+Click on Merge pull request.
+
+Confirm the merge.
+digitalocean.com
++4
+devdojo.com
++4
+theclientside.net
++4
+
+This merges feature-branch into main.
+
+7. Delete the Feature Branch (Optional)
+After merging, you can delete the feature branch both locally and remotely.
+github.com
+
+bash
+Copy
+Edit
+git branch -d feature-branch           # Delete local branch
+git push origin --delete feature-branch # Delete remote branch
+This keeps your repository clean and free of unnecessary branches.
+
+9.Undo the last commit or remove the last created file from remote repo using CLI.
+
+Option 1: Completely Remove the Last Commit from Remote
+If you want to remove the last commit entirely from both your local and remote repositories, follow these steps:
+
+Reset the last commit locally:
+
+bash
+Copy
+Edit
+git reset --hard HEAD~1
+This command moves your local branch pointer to the previous commit, effectively removing the last commit and all its changes.
+
+Force-push the changes to the remote repository:
+
+bash
+Copy
+Edit
+git push origin HEAD --force
+This command updates the remote repository to match your local branch, removing the last commit from the remote history.
+
+
+Option 2: Undo the Last Commit Without Removing It
+If you prefer to undo the changes introduced by the last commit without removing it from the history, you can use the git revert command:
+
+Revert the last commit:
+
+bash
+Copy
+Edit
+git revert HEAD
+This command creates a new commit that undoes the changes made by the last commit.
+
+Push the revert commit to the remote repository:
+
+bash
+Copy
+Edit
+git push origin <branch-name>
+Replace <branch-name> with the name of your branch (e.g., master or main).
+
+Note: This method is safer for collaborative environments as it preserves the commit history.
+delftstack.com
+
+Option 3: Remove the Last Created File from Remote
+If you want to remove a specific file that was added in the last commit, follow these steps:
+
+Remove the file:
+
+bash
+Copy
+Edit
+git rm <file-name>
+Replace <file-name> with the name of the file you want to remove.
+
+Commit the removal:
+
+bash
+Copy
+Edit
+git commit -m "Remove <file-name>"
+Push the changes to the remote repository:
+
+bash
+Copy
+Edit
+git push origin <branch-name>
+Replace <branch-name> with the name of your branch
+
+10.Branching and merging in Git, Resolve a merge conflicts.
+
+Branching and Merging in Git
+1. Creating a New Branch
+To create and switch to a new branch:
+
+bash
+Copy
+Edit
+git checkout -b feature-branch
+This command creates a new branch named feature-branch and switches to it.
+
+2. Making Changes and Committing
+After making changes to your files, stage and commit them:
+
+bash
+Copy
+Edit
+git add .
+git commit -m "Implement new feature"
+3. Pushing the Branch to Remote
+To push your new branch to the remote repository:
+
+bash
+Copy
+Edit
+git push -u origin feature-branch
+The -u flag sets the upstream branch, allowing you to use git push and git pull without specifying the remote and branch name.
+
+4. Merging the Feature Branch into Main
+Once your feature is complete and tested, switch to the main branch and merge the feature-branch:
+
+bash
+Copy
+Edit
+git checkout main
+git pull origin main
+git merge feature-branch
+If the merge is successful, commit the merge:
+
+bash
+Copy
+Edit
+git commit -m "Merge feature-branch into main"
+Finally, push the updated main branch to the remote repository:
+
+bash
+Copy
+Edit
+git push origin main
+
+
+1. Identifying a Merge Conflict
+After attempting to merge, Git will notify you of conflicts:
+
+bash
+Copy
+Edit
+git status
+Files with conflicts will be listed as "both modified."
+freecodecamp.org
++1
+atlassian.com
++1
+
+2. Understanding Conflict Markers
+Open the conflicted file in a text editor. Git marks conflicts with:
+linode.com
++10
+baeldung.com
++10
+phoenixnap.com.br
++10
+
+plaintext
+Copy
+Edit
+<<<<<<< HEAD
+Your changes
+=======
+Incoming changes
+>>>>>>> feature-branch
+Everything between <<<<<<< HEAD and ======= is from the current branch, and between ======= and >>>>>>> feature-branch is from the branch being merged.
+freecodecamp.org
++1
+atlassian.com
++1
+
+3. Resolving the Conflict
+Edit the file to reconcile the differences. Decide which changes to keep, or combine them as necessary. Remove the conflict markers after editing.
+freecodecamp.org
++3
+freecodecamp.org
++3
+community.atlassian.com
++3
+
+4. Marking the Conflict as Resolved
+After editing, stage the resolved file:
+
+bash
+Copy
+Edit
+git add <file-name>
+Once all conflicts are resolved and staged, commit the merge:
+betterstack.com
+
+bash
+Copy
+Edit
+git commit -m "Resolve merge conflict in <file-name>"
+5. Pushing the Changes
+Push the resolved merge to the remote repository:
+
+bash
+Copy
+Edit
+git push origin main
+Additional Tips
+Abort a Merge: If you want to cancel the merge process:
+
+bash
+Copy
+Edit
+git merge --abort
+Using a Merge Tool: For a graphical interface to resolve conflicts:
+
+bash
+Copy
+Edit
+git mergetool
+Ensure you have a merge tool configured, like meld or vimdiff.
+git-scm.com
++1
+phoenixnap.com.br
++1
+
+Viewing Commit History: To understand the changes in each branch:
+community.atlassian.com
+
+bash
+Copy
+Edit
+git log --oneline --graph --all
+
+11.Practice More git commands.
+
+Advanced Git Commands and Scenarios
+1. Interactive Rebase
+Interactive rebasing allows you to rewrite commit history, which is useful for cleaning up your commits before merging them into the main branch.
+thesyntaxdiaries.com
+
+Scenario: You have multiple commits that need to be squashed into a single commit.
+
+Steps:
+
+Start the interactive rebase for the last 3 commits:
+thesyntaxdiaries.com
+
+bash
+Copy
+Edit
+git rebase -i HEAD~3
+In the editor that opens, change pick to squash (or s) for the commits you want to combine:
+
+plaintext
+Copy
+Edit
+pick e3a1b35 Add feature X
+squash 7ac9a67 Fix bug in feature X
+squash 9b1a2d3 Update documentation for feature X
+Save and close the editor.
+
+Another editor will open to combine commit messages. Edit as needed, then save and close.
+
+If there are no conflicts, the rebase will complete. If there are conflicts, resolve them, then continue the rebase:
+
+bash
+Copy
+Edit
+git rebase --continue
+Note: Interactive rebasing rewrites commit history. It's recommended to perform this on branches that haven't been shared with others.
+
+2. Cherry-Picking Commits
+Cherry-picking allows you to apply a commit from one branch onto another.
+
+Scenario: You want to apply a specific commit from the feature branch to the main branch.
+
+Steps:
+
+Switch to the branch where you want to apply the commit:
+
+bash
+Copy
+Edit
+git checkout main
+Find the commit hash you want to cherry-pick:
+
+bash
+Copy
+Edit
+git log feature
+Cherry-pick the commit:
+
+bash
+Copy
+Edit
+git cherry-pick <commit-hash>
+Note: If there are conflicts during the cherry-pick, Git will pause and allow you to resolve them. After resolving, use git cherry-pick --continue to proceed.
+
+3. Using Git Reflog for Recovery
+Git's reflog records updates to the tip of branches, allowing you to recover lost commits.
+thesyntaxdiaries.com
+
+Scenario: You accidentally reset your branch and want to recover the lost commits.
+thesyntaxdiaries.com
+
+Steps:
+
+View the reflog:
+
+bash
+Copy
+Edit
+git reflog
+Identify the commit you want to recover.
+
+Checkout the commit:
+
+bash
+Copy
+Edit
+git checkout <commit-hash>
+Create a new branch from this commit:
+
+bash
+Copy
+Edit
+git checkout -b recovered-branch
+Note: Reflog entries are kept for 90 days by default, so you have a window to recover lost commits.
+
+4. Git Stash
+Git stash allows you to save changes temporarily without committing them.
+
+Scenario: You're working on a feature but need to switch branches to address an urgent bug.
+
+Steps:
+
+Stash your changes:
+
+bash
+Copy
+Edit
+git stash
+Switch to the bugfix branch:
+
+bash
+Copy
+Edit
+git checkout bugfix
+After addressing the bug, switch back to your feature branch:
+
+bash
+Copy
+Edit
+git checkout feature
+Apply your stashed changes:
+
+bash
+Copy
+Edit
+git stash apply
+Note: If you have multiple stashes, you can list them with git stash list and apply a specific one with git stash apply stash@{n}.
+
+5. Git Bisect
+Git bisect helps you find the commit that introduced a bug by performing a binary search.
+
+Scenario: A bug was introduced, but you're unsure which commit caused it.
+
+Steps:
+
+Start bisecting:
+
+bash
+Copy
+Edit
+git bisect start
+Mark the current commit as bad:
+
+bash
+Copy
+Edit
+git bisect bad
+Mark a known good commit:
+
+bash
+Copy
+Edit
+git bisect good <commit-hash>
+Git will checkout a commit in between. Test it and mark it as good or bad:
+
+bash
+Copy
+Edit
+git bisect good
+or
+
+bash
+Copy
+Edit
+git bisect bad
+Repeat until Git identifies the commit that introduced the bug.
+
+End the bisect session:
+
+bash
+Copy
+Edit
+git bisect reset
+

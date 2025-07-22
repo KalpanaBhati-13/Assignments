@@ -1,0 +1,789 @@
+1.Observe assigned Subscriptions Observe Azure Entra ID or create own Azure Entra ID in personal Azure account Create test users and groups Assign a RBAC role to user and test Create a custom role and assigned to users and test.
+
+1. Observe Assigned Subscriptions
+To check which Azure subscriptions are available:
+
+Steps:
+Sign in to the Azure Portal.
+
+In the top-right corner, click on your account and choose "Switch Directory" or "View my billings".
+
+Go to Subscriptions from the search bar.
+
+View the list of subscriptions you're assigned to and their details (like subscription ID, status, and directory).
+
+2. Observe Azure Entra ID or Create Your Own
+Option A: Observe Existing Azure Entra ID
+Go to the Azure Portal.
+
+Search for "Microsoft Entra ID" or "Azure Active Directory" in the search bar.
+
+You'll see the default directory your account is part of.
+
+Explore Users, Groups, Enterprise applications, and Roles and administrators.
+
+Option B: Create Your Own Azure Entra ID (If Needed)
+In the Azure Portal, search "Microsoft Entra ID" → Click Manage Tenants.
+
+Click + Create.
+
+Choose Azure Active Directory → Fill in the Organization name, Initial domain name, and select a Country.
+
+Click Create.
+
+Once created, you can switch directories to the new one.
+
+3. Create Test Users and Groups
+Steps to Create a Test User:
+In Azure Entra ID, go to Users → + New user.
+
+Choose Create user, fill in the username and name.
+
+Assign a password or let Azure auto-generate.
+
+Click Create.
+
+Steps to Create a Group:
+In Azure Entra ID, go to Groups → + New group.
+
+Choose Security as the group type.
+
+Name the group (e.g., TestGroup1).
+
+Add the test user to the group.
+
+Click Create.
+
+4. Assign a Built-In RBAC Role to a User and Test
+Steps:
+Go to Subscriptions in the Azure Portal.
+
+Click on your subscription.
+
+Select Access Control (IAM).
+
+Click + Add → Add role assignment.
+
+Choose a built-in role (e.g., Reader, Contributor).
+
+Assign the role to the test user or group you created earlier.
+
+Log in as the test user (use an incognito browser or a different browser) to verify access.
+
+5. Create a Custom Role and Assign It to a User
+Steps to Create a Custom Role:
+Go to Subscriptions → Select your subscription → Access Control (IAM).
+
+Click + Add → Add custom role.
+
+In the custom role wizard:
+
+Name: e.g., CustomReadStorageOnly
+
+Permissions: Add only the required actions (e.g., Microsoft.Storage/storageAccounts/read)
+
+Assign to scope: Subscription / Resource group / Resource level
+
+Click Create.
+
+Assign the Custom Role to a User:
+Go back to Access Control (IAM) → + Add role assignment.
+
+2.Observe assigned Subscriptions Observe Azure Entra ID or create own Azure Entra ID in personal Azure account Create test users and groups Assign a RBAC role to user and test Create a custom role and assigned to users and test.
+
+Azure Lab Task Steps
+1. Observe Assigned Subscriptions
+Goal: View which subscriptions your Azure account is associated with.
+
+Steps:
+Sign in to Azure Portal.
+
+Search for Subscriptions in the top search bar.
+
+Review all subscriptions listed and note:
+
+Subscription name
+
+Subscription ID
+
+Current directory/tenant
+
+Access level (e.g., Owner, Contributor)
+
+2. Observe or Create Your Own Azure Entra ID
+A. View Existing Entra ID
+In the Azure Portal, search Microsoft Entra ID (formerly Azure AD).
+
+You will see the current tenant (directory) you belong to.
+
+Explore the settings like Users, Groups, Roles, and Tenant information.
+
+B. Create a New Azure Entra ID (Optional)
+Go to Microsoft Entra ID → Manage Tenants.
+
+Click + Create → Select Azure Active Directory.
+
+Enter:
+
+Name: MyTestDirectory
+
+Initial domain: mytestdirectory.onmicrosoft.com
+
+Country: Your location
+
+Click Create.
+
+Once created, Switch to the new directory using your account settings.
+
+3. Create Test Users and Groups
+Create a Test User:
+Navigate to Microsoft Entra ID → Users → + New user.
+
+Choose Create user.
+
+Enter:
+
+Name: Test User
+
+Username: testuser@yourdomain.onmicrosoft.com
+
+Assign a password or auto-generate
+
+Click Create.
+
+Create a Group:
+Go to Groups → + New group.
+
+Choose:
+
+Group type: Security
+
+Name: TestGroup
+
+Under Members, add Test User.
+
+Click Create.
+
+4. Assign a Built-in RBAC Role and Test
+Assign Role:
+Go to Subscriptions → Select your subscription.
+
+Open Access Control (IAM).
+
+Click + Add → Add role assignment.
+
+Select a role like Reader.
+
+Assign it to your Test User or TestGroup.
+
+Confirm and click Save.
+
+Test Access:
+Sign in with the test user (open a private/incognito window).
+
+Go to the Azure portal and verify if they can view (but not edit) resources.
+
+5. Create a Custom RBAC Role and Assign It
+Create a Custom Role:
+Go to Subscriptions → Access Control (IAM).
+
+Click + Add → Add custom role.
+
+Enter:
+
+Name: CustomStorageReader
+
+Description: "Can read storage accounts only"
+
+On the Permissions tab, add:
+
+Microsoft.Storage/storageAccounts/read
+
+Set Assignable scope (subscription or specific resource group).
+
+Click Review + Create.
+
+Assign Custom Role:
+Go to Access Control (IAM) → + Add role assignment.
+
+Select the CustomStorageReader role.
+
+Assign to your Test User.
+
+Confirm and Save.
+
+Test:
+Sign in as Test User again.
+
+3.Create Virtual maching and Vnet from Azure CLI.
+
+Step 1: Create a Resource Group (if needed)
+az group create --name MyResourceGroup --location eastus
+Step 2: Create a Virtual Network and Subnet
+az network vnet create \
+  --name MyVnet \
+  --resource-group MyResourceGroup \
+  --location eastus \
+  --address-prefix 10.0.0.0/16 \
+  --subnet-name MySubnet \
+  --subnet-prefix 10.0.1.0/24
+Step 3: Create a Network Security Group (optional but recommended)
+az network nsg create \
+  --resource-group MyResourceGroup \
+  --name MyNSG \
+  --location eastus
+Open port 22 for SSH (Linux VM) or port 3389 for RDP (Windows VM)
+az network nsg rule create \
+  --resource-group MyResourceGroup \
+  --nsg-name MyNSG \
+  --name AllowSSH \
+  --protocol tcp \
+  --priority 1000 \
+  --destination-port-range 22 \
+  --access allow \
+  --direction inbound
+Step 4: Create a Network Interface (NIC)
+az network nic create \
+  --resource-group MyResourceGroup \
+  --name MyNIC \
+  --vnet-name MyVnet \
+  --subnet MySubnet \
+  --network-security-group MyNSG
+Step 5: Create the Virtual Machine
+az vm create \
+  --resource-group MyResourceGroup \
+  --name MyVM \
+  --nics MyNIC \
+  --image UbuntuLTS \
+  --admin-username azureuser \
+  --generate-ssh-keys \
+  --location eastus
+This command creates a Linux VM (Ubuntu LTS) with SSH key login.
+
+For a Windows VM, replace --image UbuntuLTS with --image Win2019Datacenter, and add --admin-password.
+
+Step 6: Get the Public IP of the VM
+az vm show \
+  --resource-group MyResourceGroup \
+  --name MyVM \
+  --show-details \
+  --query [publicIps] \
+  --output tsv
+You can then SSH to the VM:
+
+ssh azureuser@<public-ip>
+
+4.Create and assign a any policy at subscription level
+
+Step 1: Define a Policy Rule in JSON
+Create a file named deny-public-ip.json:
+
+json
+
+{
+  "properties": {
+    "displayName": "Deny Public IP Creation",
+    "mode": "All",
+    "description": "This policy denies the creation of public IP addresses.",
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Network/publicIPAddresses"
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  }
+}
+Save it in your current directory.
+
+Step 2: Create the Policy Definition
+az policy definition create \
+  --name "deny-public-ip" \
+  --display-name "Deny Public IP Creation" \
+  --description "This policy denies the creation of public IP addresses." \
+  --rules deny-public-ip.json \
+  --mode All
+This creates a custom policy available for assignment.
+
+Step 3: Assign the Policy at the Subscription Level
+First, get your subscription ID (if you don’t know it):
+az account show --query id --output tsv
+Then assign the policy:
+az policy assignment create \
+  --name "deny-public-ip-assignment" \
+  --policy "deny-public-ip" \
+  --scope "/subscriptions/<your-subscription-id>"
+Replace <your-subscription-id> with your actual subscription ID.
+
+Verify the Policy Assignment
+az policy assignment list --query "[?name=='deny-public-ip-assignment']"
+Test the Policy
+Try to create a public IP using the Azure CLI or Portal. It should fail with a policy violation error.
+
+5.Create an Azure key vault and store secrets. Configure access policies for the Key Vault to allow authorized users or applications to manage keys and secrets. retrieve secret from key vault using azure CLI.
+
+
+1. Create an Azure Key Vault
+az keyvault create \
+  --name MyKeyVault12345 \
+  --resource-group MyResourceGroup \
+  --location eastus
+MyKeyVault12345 must be globally unique.
+
+2. Store Secrets in the Key Vault
+az keyvault secret set \
+  --vault-name MyKeyVault12345 \
+  --name MySecret \
+  --value "P@ssw0rd123!"
+This stores a secret named MySecret.
+
+3. Configure Access Policies
+You need to grant access to a user or application to get, set, and list secrets.
+
+Option A: Grant access to yourself (current user)
+Get your Azure user object ID:
+az ad signed-in-user show --query objectId --output tsv
+Use it to set permissions:
+az keyvault set-policy \
+  --name MyKeyVault12345 \
+  --object-id <your-object-id> \
+  --secret-permissions get list set delete
+Option B: Grant access to an app/service principal
+If using a service principal (client app), get its object ID:
+az ad sp show --id <app-id> --query objectId --output tsv
+Then:
+az keyvault set-policy \
+  --name MyKeyVault12345 \
+  --object-id <app-object-id> \
+  --secret-permissions get list
+4. Retrieve the Secret Using Azure CLI
+az keyvault secret show \
+  --name MySecret \
+  --vault-name MyKeyVault12345 \
+  --query value \
+  --output tsv
+This command returns only the secret’s value.
+
+Example Summary Script:
+# Variables
+vaultName="MyKeyVault12345"
+resourceGroup="MyResourceGroup"
+location="eastus"
+secretName="MySecret"
+secretValue="P@ssw0rd123!"
+
+# Create Key Vault
+az keyvault create --name $vaultName --resource-group $resourceGroup --location $location
+
+# Add Secret
+az keyvault secret set --vault-name $vaultName --name $secretName --value $secretValue
+
+# Get Current User Object ID
+userId=$(az ad signed-in-user show --query objectId --output tsv)
+
+# Set Access Policy
+az keyvault set-policy --name $vaultName --object-id $userId --secret-permissions get list set delete
+
+# Retrieve Secret
+az keyvault secret show --name $secretName --vault-name $vaultName --query value --output tsv
+
+6.Create a VM from Powershell.
+
+Prerequisites
+Make sure you have:
+
+Logged in to Azure:
+
+powershell
+Connect-AzAccount
+Set the correct subscription:
+
+powershell
+Set-AzContext -Subscription "<your-subscription-name-or-ID>"
+Step-by-Step PowerShell Script to Create a VM
+powershell
+# Set variables
+$resourceGroup = "MyResourceGroup"
+$location = "EastUS"
+$vnetName = "MyVnet"
+$subnetName = "MySubnet"
+$vmName = "MyVM"
+$vmSize = "Standard_B1s"
+$publicIPName = "MyPublicIP"
+$nsgName = "MyNSG"
+$nicName = "MyNIC"
+$image = Get-AzVMImageSku -Location $location -PublisherName Canonical -Offer UbuntuServer | Select-Object -First 1
+
+# Create Resource Group
+New-AzResourceGroup -Name $resourceGroup -Location $location
+
+# Create Virtual Network and Subnet
+$vnet = New-AzVirtualNetwork -ResourceGroupName $resourceGroup -Location $location `
+         -Name $vnetName -AddressPrefix "10.0.0.0/16"
+$subnet = Add-AzVirtualNetworkSubnetConfig -Name $subnetName `
+         -AddressPrefix "10.0.1.0/24" -VirtualNetwork $vnet
+$vnet | Set-AzVirtualNetwork
+
+# Create Public IP
+$publicIP = New-AzPublicIpAddress -Name $publicIPName -ResourceGroupName $resourceGroup `
+           -Location $location -AllocationMethod Dynamic
+
+# Create Network Security Group and Rule
+$nsg = New-AzNetworkSecurityGroup -ResourceGroupName $resourceGroup -Location $location -Name $nsgName
+$nsgRule = New-AzNetworkSecurityRuleConfig -Name "Allow-SSH" -Protocol "Tcp" -Direction "Inbound" `
+            -Priority 1000 -SourceAddressPrefix "*" -SourcePortRange "*" `
+            -DestinationAddressPrefix "*" -DestinationPortRange 22 -Access "Allow"
+$nsg.SecurityRules.Add($nsgRule)
+$nsg | Set-AzNetworkSecurityGroup
+
+# Create Network Interface
+$subnetConfig = Get-AzVirtualNetworkSubnetConfig -Name $subnetName -VirtualNetwork $vnet
+$nic = New-AzNetworkInterface -Name $nicName -ResourceGroupName $resourceGroup -Location $location `
+        -Subnet $subnetConfig -NetworkSecurityGroup $nsg -PublicIpAddress $publicIP
+
+# Set Admin Credentials
+$cred = Get-Credential -Message "Enter a username and password for the VM"
+
+# Create the VM Configuration
+$vmConfig = New-AzVMConfig -VMName $vmName -VMSize $vmSize |
+            Set-AzVMOperatingSystem -Linux -ComputerName $vmName -Credential $cred |
+            Set-AzVMSourceImage -PublisherName "Canonical" -Offer "UbuntuServer" -Skus "18.04-LTS" -Version "latest" |
+            Add-AzVMNetworkInterface -Id $nic.Id
+
+# Create the VM
+New-AzVM -ResourceGroupName $resourceGroup -Location $location -VM $vmConfig
+After Deployment
+Get the public IP:
+
+powershell
+Get-AzPublicIpAddress -Name $publicIPName -ResourceGroupName $resourceGroup | Select IpAddress
+Connect using SSH:
+ssh <username>@<ip-address>.
+
+7.A. Schedule a Daily backup of VM at 3:AM using vault 1. Create an Alert rule for VM CPU percentage: Criteria: CPU% MoreThan 80 There Should be analert on Email." B.Provision backups in backup center 2. Schedule a Daily backup of VM at 3:AM using vault. Configure Retention period in backup policy and retain an old backup
+
+A. Schedule Daily VM Backup at 3 AM & Create CPU Alert
+1. Create a Recovery Services Vault (if not exists)
+az backup vault create \
+  --name MyRecoveryVault \
+  --resource-group MyResourceGroup \
+  --location eastus
+
+2. Register VM with the Recovery Services Vault
+az backup protection enable-for-vm \
+  --resource-group MyResourceGroup \
+  --vault-name MyRecoveryVault \
+  --vm MyVM \
+  --policy-name DefaultPolicy
+Use a custom policy for 3 AM backup — defined below.
+
+3. Create a Backup Policy with 3 AM Schedule
+Create a JSON file backup-policy.json like this:
+
+json
+{
+  "properties": {
+    "schedulePolicy": {
+      "schedulePolicyType": "SimpleSchedulePolicy",
+      "scheduleRunFrequency": "Daily",
+      "scheduleRunTimes": ["2024-01-01T03:00:00Z"]
+    },
+    "retentionPolicy": {
+      "retentionPolicyType": "SimpleRetentionPolicy",
+      "dailySchedule": {
+        "retentionTimes": ["2024-01-01T03:00:00Z"],
+        "retentionDuration": {
+          "count": 30,
+          "durationType": "Days"
+        }
+      }
+    },
+    "backupManagementType": "AzureIaasVM",
+    "instantRpRetentionRangeInDays": 5,
+    "timeZone": "UTC"
+  }
+}
+Then run:
+
+az backup policy create \
+  --resource-group MyResourceGroup \
+  --vault-name MyRecoveryVault \
+  --name Daily3AMPolicy \
+  --policy backup-policy.json
+Apply the policy:
+
+az backup protection enable-for-vm \
+  --resource-group MyResourceGroup \
+  --vault-name MyRecoveryVault \
+  --vm MyVM \
+  --policy-name Daily3AMPolicy
+4. Create a CPU Alert Rule (If CPU > 80%) and Send Email
+
+az monitor metrics alert create \
+  --name "HighCPUAlert" \
+  --resource-group MyResourceGroup \
+  --scopes $(az vm show -g MyResourceGroup -n MyVM --query id -o tsv) \
+  --condition "avg Percentage CPU > 80" \
+  --description "CPU usage exceeded 80%" \
+  --evaluation-frequency "PT5M" \
+  --window-size "PT5M" \
+  --action "/subscriptions/<sub-id>/resourceGroups/<group>/providers/microsoft.insights/actionGroups/<action-group-name>"
+To create an email notification, you must create an Action Group first:
+
+az monitor action-group create \
+  --resource-group MyResourceGroup \
+  --name MyEmailGroup \
+  --action email myadmin admin@example.com
+Then use this in the alert:
+
+az monitor metrics alert create \
+  --name "HighCPUAlert" \
+  --resource-group MyResourceGroup \
+  --scopes $(az vm show -g MyResourceGroup -n MyVM --query id -o tsv) \
+  --condition "avg Percentage CPU > 80" \
+  --action-group MyEmailGroup
+B. Provision Backups via Backup Center & Configure Retention
+1. Open Backup Center
+In the Azure Portal:
+
+Go to "Backup Center" > + Backup
+
+Select "Azure Virtual Machine"
+
+Choose:
+
+Vault: MyRecoveryVault
+
+Backup Policy: Daily3AMPolicy (or create one)
+
+Select VM: MyVM
+
+2. Retention Configuration (in Portal)
+While creating or editing the policy, set:
+
+Daily retention: e.g., 30 days
+
+Weekly retention (optional)
+
+Retention of old backup: Enable and configure to retain X copies.
+
+This ensures old backups are retained even if a newer one exists.
+
+Final Notes
+All times are in UTC in policies (adjust for your time zone).
+
+Alerting and backup policies can be managed via ARM templates or Terraform for automation.
+
+You can check backup jobs in Backup Center > Backup Jobs.
+
+8.A. Schedule a Daily backup of VM at 3:AM using vault 1. Create an Alert rule for VM CPU percentage: Criteria: CPU% MoreThan 80 There Should be analert on Email." B.Provision backups in backup center 2. Schedule a Daily backup of VM at 3:AM using vault. Configure Retention period in backup policy and retain an old backup.
+
+A. Schedule Daily VM Backup at 3 AM & Create CPU Alert (via Azure CLI)
+1. Create a Recovery Services Vault
+az backup vault create \
+  --name MyVault \
+  --resource-group MyResourceGroup \
+  --location eastus
+2. Create a Custom Backup Policy (Daily @ 3:00 AM UTC)
+Create a JSON policy file named backup-policy.json:
+
+json
+
+{
+  "properties": {
+    "backupManagementType": "AzureIaasVM",
+    "schedulePolicy": {
+      "schedulePolicyType": "SimpleSchedulePolicy",
+      "scheduleRunFrequency": "Daily",
+      "scheduleRunTimes": [
+        "2024-01-01T03:00:00Z"
+      ]
+    },
+    "retentionPolicy": {
+      "retentionPolicyType": "SimpleRetentionPolicy",
+      "dailySchedule": {
+        "retentionTimes": [
+          "2024-01-01T03:00:00Z"
+        ],
+        "retentionDuration": {
+          "count": 30,
+          "durationType": "Days"
+        }
+      }
+    },
+    "timeZone": "UTC"
+  }
+}
+Run:
+az backup policy create \
+  --resource-group MyResourceGroup \
+  --vault-name MyVault \
+  --name Daily3AMPolicy \
+  --policy backup-policy.json
+3. Enable Backup for the VM Using the Policy
+az backup protection enable-for-vm \
+  --resource-group MyResourceGroup \
+  --vault-name MyVault \
+  --vm MyVM \
+  --policy-name Daily3AMPolicy
+4. Create an Alert Rule (CPU > 80%) With Email Notification
+(a) Create Action Group with Email
+az monitor action-group create \
+  --resource-group MyResourceGroup \
+  --name MyActionGroup \
+  --action email AlertEmail youremail@example.com
+(b) Get VM Resource ID
+vmId=$(az vm show -g MyResourceGroup -n MyVM --query id -o tsv)
+(c) Create Metric Alert for CPU > 80%
+az monitor metrics alert create \
+  --name HighCPUAlert \
+  --resource-group MyResourceGroup \
+  --scopes $vmId \
+  --description "Alert when CPU > 80%" \
+  --condition "avg Percentage CPU > 80" \
+  --window-size 5m \
+  --evaluation-frequency 5m \
+  --action MyActionGroup
+B. Provision Backups via Backup Center & Configure Retention (via Portal)
+1. Go to Azure Portal > Backup Center
+Click "+ Backup"
+
+Select Azure Virtual Machine
+
+Choose:
+
+Recovery Services Vault: MyVault
+
+Backup Policy: Daily3AMPolicy
+
+VM: Select your VM (e.g., MyVM)
+
+Click Enable Backup
+
+2. Configure Retention (if creating from portal)
+While defining a new policy:
+
+Daily Backup Time: 3:00 AM
+
+Retention Period:
+
+Daily: 30 Days
+
+Weekly/Monthly/Yearly: Optional (to retain old backups longer)
+
+Enable "Retain backup even after VM is deleted" (optional)
+
+3. View & Manage Backups
+Go to Backup Center > Backup Items
+
+Select VM to:
+
+Trigger backup manually
+
+View restore points
+
+Configure restore.
+
+8.A. Schedule a Daily backup of VM at 3:AM using vault 1. Create an Alert rule for VM CPU percentage: Criteria: CPU% MoreThan 80 There Should be analert on Email." B.Provision backups in backup center 2. Schedule a Daily backup of VM at 3:AM using vault. Configure Retention period in backup policy and retain an old backup.
+
+A. Configure VM Backup and Alert via CLI
+1. Create Recovery Services Vault
+az backup vault create \
+  --name MyRecoveryVault \
+  --resource-group MyResourceGroup \
+  --location eastus
+2. Create a Custom Backup Policy for 3:00 AM Daily Backup
+Create a file named backup-policy.json with this content:
+
+json
+{
+  "properties": {
+    "backupManagementType": "AzureIaasVM",
+    "schedulePolicy": {
+      "schedulePolicyType": "SimpleSchedulePolicy",
+      "scheduleRunFrequency": "Daily",
+      "scheduleRunTimes": [
+        "2024-01-01T03:00:00Z"
+      ]
+    },
+    "retentionPolicy": {
+      "retentionPolicyType": "SimpleRetentionPolicy",
+      "dailySchedule": {
+        "retentionTimes": [
+          "2024-01-01T03:00:00Z"
+        ],
+        "retentionDuration": {
+          "count": 30,
+          "durationType": "Days"
+        }
+      }
+    },
+    "timeZone": "UTC"
+  }
+}
+Now create the policy:
+
+az backup policy create \
+  --resource-group MyResourceGroup \
+  --vault-name MyRecoveryVault \
+  --name Daily3AMPolicy \
+  --policy backup-policy.json
+3. Enable Backup for the VM with the 3 AM Policy
+az backup protection enable-for-vm \
+  --resource-group MyResourceGroup \
+  --vault-name MyRecoveryVault \
+  --vm MyVM \
+  --policy-name Daily3AMPolicy
+4. Create Alert Rule: CPU % > 80 with Email Notification
+(a) Create Action Group for Email Notification
+az monitor action-group create \
+  --resource-group MyResourceGroup \
+  --name MyActionGroup \
+  --action email AlertAdmin youremail@example.com
+(b) Get the VM Resource ID
+vmId=$(az vm show --name MyVM --resource-group MyResourceGroup --query id -o tsv)
+(c) Create Alert Rule
+az monitor metrics alert create \
+  --name HighCPUAlert \
+  --resource-group MyResourceGroup \
+  --scopes $vmId \
+  --description "Alert when CPU usage > 80%" \
+  --condition "avg Percentage CPU > 80" \
+  --window-size 5m \
+  --evaluation-frequency 5m \
+  --action-group MyActionGroup
+B. Provision Backups via Backup Center & Configure Retention (Portal)
+1. Use Azure Portal:
+Go to Backup Center → + Backup
+
+Where is your workload running? → Azure
+
+What do you want to back up? → Virtual Machine
+
+Click Continue
+
+2. Configure Backup
+Select your Recovery Services Vault (e.g., MyRecoveryVault)
+
+Choose your VM
+
+Click Backup Policy → Create new or use existing Daily3AMPolicy
+
+3. Retention Configuration
+Set Retention Duration to:
+
+Daily: 30 days
+
+Weekly/Monthly/Yearly: Optional
+
+Confirm "Retain backups for deleted VMs" if needed
+
+Save and Enable Backup.
+
+
+
+
+
+

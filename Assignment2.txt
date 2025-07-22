@@ -1,0 +1,1155 @@
+1.Deploy Linux and Windows virtual machine and access them using SSH and RDP
+
+1.Choose Your Cloud Provider
+You can deploy VMs on:
+
+Microsoft Azure
+
+Amazon Web Services (AWS)
+
+Google Cloud Platform (GCP)
+
+Or use a local hypervisor like VirtualBox or VMware
+
+2. Set Up Linux VM (Ubuntu example)
+A. Deploy the VM
+Go to Azure Portal
+
+Navigate to Virtual Machines > Create > Azure virtual machine
+
+Fill in the details:
+
+Name: linux-vm
+
+Region: Choose closest to you
+
+Image: Ubuntu 22.04 LTS
+
+Size: Standard B1s or higher
+
+Authentication type: SSH public key
+
+Paste your public SSH key or generate one (ssh-keygen)
+
+Under Inbound port rules, allow:
+
+SSH (Port 22)
+
+Click Review + Create > Create
+
+B. Access Linux VM via SSH
+Once deployed:
+ssh azureuser@<public-ip>
+Replace azureuser and <public-ip> with actual values from the Azure VM overview page.
+
+3. Set Up Windows VM
+A. Deploy the VM
+Go to Virtual Machines > Create
+
+Fill in:
+
+Name: windows-vm
+
+Image: Windows Server 2022 or Windows 10/11
+
+Size: Standard B2s or higher
+
+Username/Password: Set these securely
+
+Under Inbound port rules, allow:
+
+RDP (Port 3389)
+
+Click Review + Create > Create
+
+B. Access Windows VM via RDP
+Go to the VM overview page in Azure
+
+Click Connect > RDP
+
+Download the .rdp file or use an RDP client:
+
+Windows: Use built-in Remote Desktop app
+
+macOS/Linux: Use Microsoft Remote Desktop or remmina
+
+Enter:
+
+IP Address
+
+Username/Password
+
+4. Optional: Setup Security & Monitoring
+Set up Network Security Groups (NSGs) to restrict access
+
+Enable Auto-shutdown to save costs
+
+Monitor usage via Azure Monitor
+
+2.Create an App Service Plan Provision a Web App in the existing App Service Plan and deploy a simple welcome page on it .
+
+Step 1: Create a Resource Group (if needed)
+az group create --name MyResourceGroup --location eastus
+Step 2: Create an App Service Plan
+az appservice plan create \
+  --name MyAppServicePlan \
+  --resource-group MyResourceGroup \
+  --sku B1 \
+  --is-linux
+Notes:
+
+--sku B1 is a basic tier (cheapest for testing)
+
+--is-linux enables Linux-based hosting (for PHP, Python, Node.js, etc.)
+
+Step 3: Create a Web App
+az webapp create \
+  --resource-group MyResourceGroup \
+  --plan MyAppServicePlan \
+  --name mywebapp$RANDOM \
+  --runtime "PHP|8.0" \
+  --deployment-local-git
+You can use other runtimes like "NODE|18-lts", "DOTNETCORE|7.0" etc.
+
+Take note of the Git deployment URL shown after creation.
+
+Step 4: Create a Simple Welcome Page (HTML)
+mkdir my-webapp
+cd my-webapp
+
+cat <<EOF > index.html
+<!DOCTYPE html>
+<html>
+<head><title>Welcome</title></head>
+<body>
+  <h1>Welcome to My Azure Web App!</h1>
+  <p>This page is deployed via Git.</p>
+</body>
+</html>
+EOF
+Step 5: Deploy the Web Page via Git
+Initialize Git and push to Azure:
+
+git init
+git add .
+git commit -m "Initial commit"
+
+# Replace with the actual Git deployment URL
+git remote add azure https://<username>@<webapp-name>.scm.azurewebsites.net/<webapp-name>.git
+
+git push azure master
+You’ll be prompted for credentials. Use:
+
+Username: The deployment username
+
+Password: Deployment password (or use az webapp deployment user set to configure)
+
+Step 6: Browse Your Web App
+Open your browser and go to:
+https://<webapp-name>.azurewebsites.net
+You should see your Welcome page.
+
+Summary
+You've now:
+
+Created an App Service Plan
+
+Created a Web App in it
+
+Deployed a simple welcome page using Git
+
+3.Create ACR and pull image from ACR and Create a container from it.
+
+Step 1: Create an ACR (Azure Container Registry)
+az acr create \
+  --resource-group MyResourceGroup \
+  --name MyUniqueACRName \
+  --sku Basic
+MyUniqueACRName must be globally unique.
+
+Step 2: Build and Push a Docker Image to ACR
+A. Log in to ACR
+az acr login --name MyUniqueACRName
+B. Create a simple Docker image
+Create a folder and add files:
+mkdir hello-app
+cd hello-app
+
+# Create Dockerfile
+cat <<EOF > Dockerfile
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+EOF
+
+# Create index.html
+cat <<EOF > index.html
+<html>
+  <body>
+    <h1>Hello from ACR!</h1>
+  </body>
+</html>
+EOF
+C. Build and tag the Docker image
+az acr build \
+  --registry MyUniqueACRName \
+  --image hello-app:v1 .
+This builds the image remotely on Azure. Alternatively, you can build locally and push.
+
+Step 3: Pull the Image and Run it as a Container
+You can now use Azure Container Instances (ACI) to run the image.
+az container create \
+  --resource-group MyResourceGroup \
+  --name hello-container \
+  --image MyUniqueACRName.azurecr.io/hello-app:v1 \
+  --registry-login-server MyUniqueACRName.azurecr.io \
+  --registry-username $(az acr credential show --name MyUniqueACRName --query username -o tsv) \
+  --registry-password $(az acr credential show --name MyUniqueACRName --query "passwords[0].value" -o tsv) \
+  --dns-name-label hello-app-demo$RANDOM \
+  --ports 80
+Step 4: Access the Running Container
+Once the deployment completes, you’ll get a FQDN like:
+
+arduino
+http://hello-app-demo1234.eastus.azurecontainer.io
+Open that in your browser and you’ll see:
+
+csharp
+Hello from ACR!
+
+4.Create Container Instance and deploy a simple docker application on it. Create Container Groups and test functionality.
+
+Step 1: Create a Simple Docker Application
+We'll use a simple Nginx app serving a custom index.html.
+
+Create a directory with the app:
+mkdir nginx-app
+cd nginx-app
+Create index.html:
+bash
+Copy
+Edit
+cat <<EOF > index.html
+<html>
+  <body>
+    <h1>Hello from Azure Container Instance!</h1>
+  </body>
+</html>
+EOF
+Create a Dockerfile:
+cat <<EOF > Dockerfile
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+EOF
+Step 2: Build and Push Docker Image to ACR
+A. Create Azure Container Registry (ACR):
+az acr create \
+  --resource-group MyResourceGroup \
+  --name MyUniqueACR \
+  --sku Basic
+B. Login and push the image:
+az acr login --name MyUniqueACR
+
+# Tag and push image
+docker build -t myuniqueacr.azurecr.io/nginx-app:v1 .
+docker push myuniqueacr.azurecr.io/nginx-app:v1
+Replace myuniqueacr with your actual ACR name.
+
+Step 3: Create Container Group from ACR Image
+az container create \
+  --resource-group MyResourceGroup \
+  --name nginx-container-group \
+  --image myuniqueacr.azurecr.io/nginx-app:v1 \
+  --registry-login-server myuniqueacr.azurecr.io \
+  --registry-username $(az acr credential show --name myuniqueacr --query username -o tsv) \
+  --registry-password $(az acr credential show --name myuniqueacr --query "passwords[0].value" -o tsv) \
+  --dns-name-label nginx-demo-$RANDOM \
+  --ports 80
+This creates a Container Group with a single container.
+
+Step 4: Test Container Group Functionality
+After a minute or so, the container group will have a public IP / FQDN.
+
+To get it:
+az container show \
+  --resource-group MyResourceGroup \
+  --name nginx-container-group \
+  --query ipAddress.fqdn \
+  -o tsv
+Copy and open the URL in your browser:
+
+You should see the message:
+"Hello from Azure Container Instance!"
+
+ Bonus: Container Group with Multiple Containers
+You can also define container groups with multiple containers using a YAML file.
+
+Example: Two containers in one group (nginx + sidecar)
+cat <<EOF > container-group.yaml
+apiVersion: 2021-03-01
+location: eastus
+name: multi-container-group
+properties:
+  containers:
+  - name: nginx
+    properties:
+      image: nginx
+      ports:
+      - port: 80
+      resources:
+        requests:
+          cpu: 1.0
+          memoryInGb: 1.5
+ - name: sidecar
+    properties:
+      image: busybox
+      command: ["sh", "-c", "while true; do echo hello; sleep 10; done"]
+      resources:
+        requests:
+          cpu: 0.5
+          memoryInGb: 0.5
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: tcp
+      port: 80
+EOF
+Deploy the multi-container group:
+az container create --resource-group MyResourceGroup --file container-group.yaml
+
+5.A. Create a Vnet, 2 Subnets Subnet-1: Linux VM, WindowsVM Subnet-2: SQL DB, B. Create 4 VNets 1. Management Vnet (HUB) 2. Production Vnet 3. Testing Vnet 4. Developing Vnet And Configure Hub and Spoke Architecture and verify it's working by launching VM in each VNet and ping from Managemnent VM to every other VM.
+
+PART A – VNet with Subnets and VMs
+1. Create a VNet with 2 Subnets
+
+az network vnet create \
+  --name MyVNet \
+  --resource-group MyResourceGroup \
+  --address-prefix 10.0.0.0/16 \
+  --subnet-name Subnet-1 \
+  --subnet-prefix 10.0.1.0/24
+Now add Subnet-2:
+az network vnet subnet create \
+  --resource-group MyResourceGroup \
+  --vnet-name MyVNet \
+  --name Subnet-2 \
+  --address-prefix 10.0.2.0/24
+2. Deploy VMs into Subnet-1
+A. Linux VM in Subnet-1:
+
+az vm create \
+  --resource-group MyResourceGroup \
+  --name LinuxVM \
+  --vnet-name MyVNet \
+  --subnet Subnet-1 \
+  --image UbuntuLTS \
+  --admin-username azureuser \
+  --generate-ssh-keys
+B. Windows VM in Subnet-1:
+
+az vm create \
+  --resource-group MyResourceGroup \
+  --name WindowsVM \
+  --vnet-name MyVNet \
+  --subnet Subnet-1 \
+  --image Win2022Datacenter \
+  --admin-username azureuser \
+  --admin-password 'YourP@ssword123!'
+3. Simulate SQL DB in Subnet-2 (e.g. a Linux VM)
+
+az vm create \
+  --resource-group MyResourceGroup \
+  --name SQLVM \
+  --vnet-name MyVNet \
+  --subnet Subnet-2 \
+  --image UbuntuLTS \
+  --admin-username azureuser \
+  --generate-ssh-keys
+PART B – Hub and Spoke Network with VM Connectivity
+1. Create the 4 VNets
+Each with non-overlapping IPs:
+
+
+az network vnet create --resource-group MyResourceGroup --name HUB-VNet --address-prefix 10.1.0.0/16 --subnet-name hub-subnet --subnet-prefix 10.1.0.0/24
+az network vnet create --resource-group MyResourceGroup --name PROD-VNet --address-prefix 10.2.0.0/16 --subnet-name prod-subnet --subnet-prefix 10.2.0.0/24
+az network vnet create --resource-group MyResourceGroup --name TEST-VNet --address-prefix 10.3.0.0/16 --subnet-name test-subnet --subnet-prefix 10.3.0.0/24
+az network vnet create --resource-group MyResourceGroup --name DEV-VNet --address-prefix 10.4.0.0/16 --subnet-name dev-subnet --subnet-prefix 10.4.0.0/24
+2. Create Peering for Hub-and-Spoke Architecture
+Peering each spoke to the HUB and vice versa:
+
+Example: HUB ↔ PROD
+
+# HUB to PROD
+az network vnet peering create \
+  --name HUB-to-PROD \
+  --resource-group MyResourceGroup \
+  --vnet-name HUB-VNet \
+  --remote-vnet PROD-VNet \
+  --allow-vnet-access
+
+# PROD to HUB
+az network vnet peering create \
+  --name PROD-to-HUB \
+  --resource-group MyResourceGroup \
+  --vnet-name PROD-VNet \
+  --remote-vnet HUB-VNet \
+  --allow-vnet-access
+Repeat for TEST and DEV with similar commands.
+
+3. Create 1 VM in Each VNet
+Use different names and VNet/subnet settings for each:
+
+# HUB VM (Management)
+az vm create --resource-group MyResourceGroup --name HUB-VM \
+  --vnet-name HUB-VNet --subnet hub-subnet --image UbuntuLTS \
+  --admin-username azureuser --generate-ssh-keys
+
+# PROD VM
+az vm create --resource-group MyResourceGroup --name PROD-VM \
+  --vnet-name PROD-VNet --subnet prod-subnet --image UbuntuLTS \
+  --admin-username azureuser --generate-ssh-keys
+
+# TEST VM
+az vm create --resource-group MyResourceGroup --name TEST-VM \
+  --vnet-name TEST-VNet --subnet test-subnet --image UbuntuLTS \
+  --admin-username azureuser --generate-ssh-keys
+
+# DEV VM
+az vm create --resource-group MyResourceGroup --name DEV-VM \
+  --vnet-name DEV-VNet --subnet dev-subnet --image UbuntuLTS \
+  --admin-username azureuser --generate-ssh-keys
+4. Verify Hub-and-Spoke Connectivity
+SSH into HUB-VM
+ssh azureuser@<public-ip-of-HUB-VM>
+Ping other VMs (private IPs)
+
+bash
+Copy
+Edit
+ping 10.2.0.x   # PROD-VM
+ping 10.3.0.x   # TEST-VM
+ping 10.4.0.x   # DEV-VM
+You can get private IPs using:
+
+az vm list-ip-addresses --resource-group MyResourceGroup --output table.
+
+6.Create a Internal and External Load Balancer.
+
+1. Create an External Load Balancer
+A. Create a VNet and Subnet
+az network vnet create \
+  --resource-group MyResourceGroup \
+  --name MyVNet \
+  --address-prefix 10.10.0.0/16 \
+  --subnet-name MySubnet \
+  --subnet-prefix 10.10.1.0/24
+B. Create Two VMs in the Same Subnet
+for i in 1 2; do
+  az vm create \
+    --resource-group MyResourceGroup \
+    --name VM$i \
+    --vnet-name MyVNet \
+    --subnet MySubnet \
+    --image UbuntuLTS \
+    --admin-username azureuser \
+    --generate-ssh-keys \
+    --nsg "" \
+    --no-wait
+done
+C. Create a Public IP for the Load Balancer
+az network public-ip create \
+  --resource-group MyResourceGroup \
+  --name MyPublicIP \
+  --sku Standard \
+  --allocation-method static
+D. Create the Load Balancer
+az network lb create \
+  --resource-group MyResourceGroup \
+  --name MyExternalLB \
+  --sku Standard \
+  --frontend-ip-name MyFrontEnd \
+  --backend-pool-name MyBackEndPool \
+  --public-ip-address MyPublicIP
+E. Create Health Probe and Load Balancing Rule
+az network lb probe create \
+  --resource-group MyResourceGroup \
+  --lb-name MyExternalLB \
+  --name MyHealthProbe \
+  --protocol tcp \
+  --port 80
+
+az network lb rule create \
+  --resource-group MyResourceGroup \
+  --lb-name MyExternalLB \
+  --name MyHTTPRule \
+  --protocol tcp \
+  --frontend-port 80 \
+  --backend-port 80 \
+  --frontend-ip-name MyFrontEnd \
+  --backend-pool-name MyBackEndPool \
+  --probe-name MyHealthProbe
+F. Add the VMs' NICs to the Backend Pool
+for i in 1 2; do
+  nicId=$(az vm show -d -g MyResourceGroup -n VM$i --query 'networkProfile.networkInterfaces[0].id' -o tsv)
+  az network nic ip-config address-pool add \
+    --address-pool MyBackEndPool \
+    --ip-config-name ipconfig1 \
+    --nic-name $(basename $nicId) \
+    --lb-name MyExternalLB \
+    --resource-group MyResourceGroup
+done
+ Access External Load Balancer
+az network public-ip show --resource-group MyResourceGroup --name MyPublicIP --query ipAddress -o tsv
+Open in browser:
+http://<public-ip> → Should load from one of the VMs
+
+6. Create an Internal Load Balancer
+A. Create a Private Frontend IP Config
+az network lb create \
+  --resource-group MyResourceGroup \
+  --name MyInternalLB \
+  --sku Standard \
+  --frontend-ip-name MyInternalFrontEnd \
+  --backend-pool-name MyInternalBackEndPool \
+  --vnet-name MyVNet \
+  --subnet MySubnet \
+  --private-ip-address 10.10.1.100
+B. Create Health Probe & Load Balancing Rule
+az network lb probe create \
+  --resource-group MyResourceGroup \
+  --lb-name MyInternalLB \
+  --name InternalProbe \
+  --protocol tcp \
+  --port 80
+
+az network lb rule create \
+  --resource-group MyResourceGroup \
+  --lb-name MyInternalLB \
+  --name InternalHTTPRule \
+  --protocol tcp \
+  --frontend-port 80 \
+  --backend-port 80 \
+  --frontend-ip-name MyInternalFrontEnd \
+  --backend-pool-name MyInternalBackEndPool \
+  --probe-name InternalProbe
+C. Add Same VMs to Internal Backend Pool
+for i in 1 2; do
+  az network nic ip-config address-pool add \
+    --address-pool MyInternalBackEndPool \
+    --ip-config-name ipconfig1 \
+    --nic-name VM$i"VMNic" \
+    --lb-name MyInternalLB \
+    --resource-group MyResourceGroup
+done
+Replace "VM$iVMNic" with actual NIC name if different
+
+Testing Internal Load Balancer
+SSH into any VM:
+ssh azureuser@<public-ip-of-VM1>
+From there, curl the internal LB IP:
+curl http://10.10.1.100
+
+7.Create and test Azure Application gateway.
+
+Create a VNet and Subnets
+App Gateway requires dedicated subnet.
+az network vnet create \
+  --resource-group MyResourceGroup \
+  --name AppGwVNet \
+  --address-prefix 10.0.0.0/16 \
+  --subnet-name AppGatewaySubnet \
+  --subnet-prefix 10.0.0.0/24
+Create another subnet for backend VMs:
+
+az network vnet subnet create \
+  --resource-group MyResourceGroup \
+  --vnet-name AppGwVNet \
+  --name BackendSubnet \
+  --address-prefix 10.0.1.0/24
+Create Two Backend VMs
+for i in 1 2; do
+  az vm create \
+    --resource-group MyResourceGroup \
+    --name BackendVM$i \
+    --vnet-name AppGwVNet \
+    --subnet BackendSubnet \
+    --image UbuntuLTS \
+    --admin-username azureuser \
+    --generate-ssh-keys \
+    --nsg "" \
+    --custom-data cloud-init.txt \
+    --no-wait
+done
+cloud-init.txt contents (create this file locally):
+
+yaml
+Copy
+Edit
+#cloud-config
+package_upgrade: true
+packages:
+  - nginx
+runcmd:
+  - echo "<h1>Hello from $(hostname)</h1>" > /var/www/html/index.html
+  - systemctl enable nginx
+  - systemctl start nginx
+Get Backend IPs for VM NIC Configuration
+az vm list-ip-addresses \
+  --resource-group MyResourceGroup \
+  --name BackendVM1 --query "[0].virtualMachine.network.privateIpAddresses[0]" -o tsv
+az vm list-ip-addresses \
+  --resource-group MyResourceGroup \
+  --name BackendVM2 --query "[0].virtualMachine.network.privateIpAddresses[0]" -o tsv
+Create a Public IP for Application Gateway
+az network public-ip create \
+  --resource-group MyResourceGroup \
+  --name AppGwPublicIP \
+  --sku Standard
+ Create the Application Gateway
+az network application-gateway create \
+  --name MyAppGateway \
+  --location eastus \
+  --resource-group MyResourceGroup \
+  --capacity 2 \
+  --sku Standard_v2 \
+  --http-settings-cookie-based-affinity Disabled \
+  --frontend-port 80 \
+  --public-ip-address AppGwPublicIP \
+  --vnet-name AppGwVNet \
+  --subnet AppGatewaySubnet \
+  --servers <PRIVATE_IP_VM1> <PRIVATE_IP_VM2>
+Replace <PRIVATE_IP_VM1> and <PRIVATE_IP_VM2> with actual private IPs from previous step.
+
+Test Application Gateway
+Get the public IP of App Gateway:
+az network public-ip show \
+  --resource-group MyResourceGroup \
+  --name AppGwPublicIP \
+  --query ipAddress \
+  -o tsv
+Go to the IP in your browser:
+
+You should see alternating messages:
+
+"Hello from BackendVM1"
+
+"Hello from BackendVM2"
+
+8.Set up a domain, setup a server on a VM and use the DNS server for traffic.
+
+Step 1: Create a VM Web Server
+az vm create \
+  --resource-group MyResourceGroup \
+  --name WebVM \
+  --image UbuntuLTS \
+  --admin-username azureuser \
+  --generate-ssh-keys
+Open port 80 to allow HTTP traffic:
+
+az vm open-port --port 80 --resource-group MyResourceGroup --name WebVM
+Install and configure Nginx:
+
+ssh azureuser@<public-ip-of-VM>
+
+sudo apt update
+sudo apt install -y nginx
+echo "<h1>Welcome to My Domain!</h1>" | sudo tee /var/www/html/index.html
+Step 2: Register a Domain Name
+You need to buy/register a domain from a domain registrar (e.g., GoDaddy, Namecheap, Google Domains).
+
+Examples:
+
+myawesomedomain.com
+
+Once you own it, proceed to DNS setup below.
+
+Step 3: Create Azure DNS Zone
+Replace with your domain name:
+
+az network dns zone create \
+  --resource-group MyResourceGroup \
+  --name myawesomedomain.com
+Step 4: Add an A Record for Your VM
+
+az network dns record-set a add-record \
+  --resource-group MyResourceGroup \
+  --zone-name myawesomedomain.com \
+  --record-set-name www \
+  --ipv4-address <public-ip-of-VM>
+This creates:
+www.myawesomedomain.com → <VM IP>
+
+Step 5: Update Your Registrar's NS Records
+Run:
+
+az network dns zone show \
+  --resource-group MyResourceGroup \
+  --name myawesomedomain.com \
+  --query nameServers
+Take the list of Azure name servers and update your registrar’s domain settings (Name Server records) with these values.
+
+This step is crucial to delegate DNS control to Azure.
+
+Step 6: Test Domain Routing
+Wait up to 15–30 minutes for DNS propagation, then:
+
+ping www.myawesomedomain.com
+curl http://www.myawesomedomain.com
+
+9.Create a Storage account and explore all the option while creating Upload and access the blob Go through different Auth. Tech and test the same Try Azure storage explorer Provision Access keys and use them for connection with storage account Create a Shared access signature and check access scope Create a stored access policy over shared access signature and check access scope Learn about different access tiers and their use cases Apply lifecycle policy over objects and test the same test object replication in blob Create a file share and test functionality Create a Azure File sync.
+
+STEP 1: Create a Storage Account
+
+az storage account create \
+  --name mystorageacct$RANDOM \
+  --resource-group MyResourceGroup \
+  --location eastus \
+  --sku Standard_LRS \
+  --kind StorageV2 \
+  --access-tier Hot
+Note down:
+
+storageAccountName
+
+resourceGroupName
+
+STEP 2: Upload and Access Blob
+Create a container:
+
+az storage container create \
+  --name mycontainer \
+  --account-name mystorageacct123 \
+  --public-access blob
+Upload a blob:
+
+az storage blob upload \
+  --container-name mycontainer \
+  --file ./hello.txt \
+  --name hello.txt \
+  --account-name mystorageacct123
+Access Blob:
+
+az storage blob url \
+  --container-name mycontainer \
+  --name hello.txt \
+  --account-name mystorageacct123
+STEP 3: Explore Authentication Options
+A. Access Key
+
+az storage account keys list \
+  --account-name mystorageacct123 \
+  --resource-group MyResourceGroup
+Use key with Azure CLI:
+
+bash
+Copy
+Edit
+az storage blob list \
+  --container-name mycontainer \
+  --account-name mystorageacct123 \
+  --account-key <key>
+B. Shared Access Signature (SAS)
+
+az storage container generate-sas \
+  --account-name mystorageacct123 \
+  --name mycontainer \
+  --permissions r \
+  --expiry $(date -u -d "1 hour" '+%Y-%m-%dT%H:%MZ') \
+  --output tsv
+Append SAS token to blob URL and access in browser.
+
+C. Stored Access Policy (with SAS)
+bash
+Copy
+Edit
+az storage container policy create \
+  --account-name mystorageacct123 \
+  --container-name mycontainer \
+  --name readPolicy \
+  --permissions r \
+  --expiry "2025-12-31T23:59Z"
+Then generate SAS:
+
+az storage container generate-sas \
+  --account-name mystorageacct123 \
+  --name mycontainer \
+  --policy-name readPolicy \
+  --output tsv
+
+STEP 4: Access Tiers
+Set blob access tier:
+
+az storage blob set-tier \
+  --account-name mystorageacct123 \
+  --container-name mycontainer \
+  --name hello.txt \
+  --tier Cool
+Use cases:
+
+Hot: Frequently accessed data
+
+Cool: Infrequently accessed, lower cost
+
+Archive: Rarely accessed, very low cost but slower access
+
+STEP 5: Lifecycle Management
+
+
+az storage account management-policy create \
+  --account-name mystorageacct123 \
+  --resource-group MyResourceGroup \
+  --policy '{
+    "rules": [
+      {
+        "enabled": true,
+        "name": "move-to-cool",
+        "type": "Lifecycle",
+        "definition": {
+          "filters": {
+            "blobTypes": ["blockBlob"],
+            "prefixMatch": [""]
+          },
+          "actions": {
+            "baseBlob": {
+              "tierToCool": {
+                "daysAfterModificationGreaterThan": 30
+              }
+            }
+          }
+        }
+      }
+    ]
+  }'
+
+STEP 6: Object Replication
+Prerequisites:
+2 Storage Accounts with versioning enabled
+
+Same region or cross-region
+
+Example (simplified):
+bash
+Copy
+Edit
+az storage account blob-service-properties update \
+  --account-name mystorageacct123 \
+  --enable-versioning true
+Set up replication in the portal or use Azure REST API (object replication is not fully CLI-supported as of now).
+
+STEP 7: Create a File Share
+bash
+Copy
+Edit
+az storage share create \
+  --name myfileshare \
+  --account-name mystorageacct123
+Upload a file:
+bash
+Copy
+Edit
+az storage file upload \
+  --account-name mystorageacct123 \
+  --share-name myfileshare \
+  --source ./hello.txt \
+  --path hello.txt
+STEP 8: Use Azure Storage Explorer
+Download: Azure Storage Explorer
+
+Add account using:
+
+Azure AD
+
+Access key
+
+Shared Access Signature (SAS URL)
+
+You can browse blobs, file shares, queues, and tables.
+
+STEP 9: Azure File Sync
+Azure File Sync lets you sync file shares to Windows servers.
+
+Steps:
+Create Azure File Sync service (via portal or ARM template)
+
+Install Azure File Sync agent on your Windows Server
+
+Register server
+
+Create sync group
+
+Add cloud endpoint (Azure File Share)
+
+Add server endpoint (local folder path on server).
+
+10.Create a Storage account and explore all the option while creating Upload and access the blob Go through different Auth. Tech and test the same Try Azure storage explorer Provision Access keys and use them for connection with storage account Create a Shared access signature and check access scope Create a stored access policy over shared access signature and check access scope Learn about different access tiers and their use cases Apply lifecycle policy over objects and test the same test object replication in blob Create a file share and test functionality Create a Azure File sync.
+
+Step 1: Create a Storage Account
+Navigate to the Azure Portal: Go to https://portal.azure.com.
+
+Create a Storage Account:
+
+Click on "Create a resource" > "Storage" > "Storage account".
+
+Subscription: Select your subscription.
+
+Resource Group: Choose an existing one or create a new one.
+
+Storage Account Name: Provide a unique name.
+
+Region: Select your desired region.
+
+Performance: Choose between Standard and Premium.
+
+Redundancy: Select Locally-redundant storage (LRS) for this example.
+
+Access Tier: Choose Hot for frequently accessed data.
+learn.microsoft.com
+
+Review + Create: After reviewing your selections, click "Create".
+
+Step 2: Upload and Access a Blob
+Access the Storage Account:
+
+Navigate to "Storage accounts" > Your Storage Account > "Containers".
+
+Create a Container:
+
+Click on "Add".
+
+Name: Enter a name (e.g., mycontainer).
+
+Public Access Level: Choose Private (no anonymous access).
+
+Click "Create".
+learn.microsoft.com
+
+Upload a Blob:
+
+Inside the container, click "Upload".
+
+Source: Select a file from your local machine.
+
+Blob Type: Choose Block Blob.
+
+Click "Upload".
+
+Access the Blob:
+
+Click on the uploaded blob.
+
+URL: Copy the URL provided. It will be in the format:
+azure.microsoft.com
+
+php-template
+Copy
+Edit
+https://<storage_account_name>.blob.core.windows.net/mycontainer/<blob_name>
+Step 3: Authentication Methods
+A. Access Keys
+Retrieve Access Keys:
+
+Navigate to your Storage Account.
+
+Under "Security + networking", click on "Access keys".
+
+Copy key1 or key2.
+
+Use Access Keys:
+
+In your application or tool, use the connection string:
+
+ini
+Copy
+Edit
+DefaultEndpointsProtocol=https;AccountName=<storage_account_name>;AccountKey=<access_key>;EndpointSuffix=core.windows.net
+B. Shared Access Signature (SAS)
+Generate SAS:
+
+Navigate to your Storage Account.
+
+Under "Security + networking", click on "Shared access signature".
+
+Permissions: Select desired permissions (e.g., Read, Write).
+
+Start and Expiry Date/Time: Set appropriate times.
+
+Allowed IP addresses: Specify if needed.
+
+Allowed Protocols: Choose HTTPS.
+
+Click "Generate SAS".
+learn.microsoft.com
+learn.microsoft.com
++3
+medium.com
++3
+learn.microsoft.com
++3
+
+Use SAS:
+
+The generated SAS token can be appended to the blob URL:
+
+php-template
+Copy
+Edit
+https://<storage_account_name>.blob.core.windows.net/mycontainer/<blob_name>?<sas_token>
+C. Microsoft Entra ID (Azure AD)
+Assign Roles:
+
+Navigate to your Storage Account.
+
+Under "Access control (IAM)", click on "Add" > "Add role assignment".
+
+Role: Choose a role (e.g., Storage Blob Data Reader).
+
+Assign Access to: Select User, group, or service principal.
+
+Select: Choose the user or service principal.
+
+Click "Review + assign".
+
+Use Azure AD Authentication:
+
+In your application, authenticate using Azure AD tokens.
+
+Use Azure SDKs that support Azure AD authentication for Azure Storage.
+
+Step 4: Shared Access Signature (SAS) and Stored Access Policy
+Create Stored Access Policy:
+
+Navigate to your Storage Account.
+
+Under "Data management", click on "Shared access signature".
+
+Container: Select your container.
+
+Policy Name: Enter a name (e.g., readPolicy).
+
+Permissions: Select desired permissions.
+
+Start and Expiry Date/Time: Set appropriate times.
+
+Click "Create".
+
+Generate SAS Using Policy:
+
+Navigate to your Storage Account.
+
+Under "Data management", click on "Shared access signature".
+
+Container: Select your container.
+
+Policy Name: Select the policy you created.
+
+Click "Generate SAS".
+learn.microsoft.com
++1
+learn.microsoft.com
++1
+
+Use SAS:
+
+The generated SAS token can be appended to the blob URL as shown in the previous section.
+
+Step 5: Access Tiers and Lifecycle Management
+A. Access Tiers
+Set Blob Access Tier:
+
+Navigate to your blob.
+
+Click on "Change tier".
+
+Tier: Choose between Hot, Cool, or Archive.
+
+Click "Save".
+learn.microsoft.com
+
+Use Cases:
+
+Hot: For frequently accessed data.
+
+Cool: For infrequently accessed data.
+
+Archive: For rarely accessed data.
+
+B. Lifecycle Management
+Create a Lifecycle Management Policy:
+
+Navigate to your Storage Account.
+
+Under "Data management", click on "Lifecycle management".
+
+Add a rule: Click on "Add rule".
+
+Rule Name: Enter a name (e.g., MoveToCool).
+
+Filters: Specify filters if needed.
+
+Actions: Select "Move to Cool" after a specified number of days.
+
+Click "Review + create".
+
+Monitor Policy:
+
+Monitor the policy's effect over time to ensure it behaves as expected.
+
+Step 6: Object Replication
+Enable Object Replication:
+
+Navigate to your Storage Account.
+
+Under "Data management", click on "Object replication".
+
+Source Container: Select your source container.
+
+Destination Storage Account: Select your destination storage account.
+
+Destination Container: Select your destination container.
+
+Click "Add replication".
+
+Monitor Replication:
+
+Monitor the replication status to ensure data is replicated as expected.
+
+Step 7: Create a File Share
+Create a File Share:
+
+Navigate to your Storage Account.
+
+Under "File shares", click on "Add".
+
+Name: Enter a name (e.g., myfileshare).
+
+Quota: Specify a quota if needed.
+
+Click "Create".
+
+Upload Files:
+
+Navigate to your file share.
+
+Click on "Upload".
+
+Source: Select files from your local machine.
+
+Click "Upload".
+
+Step 8: Azure File Sync
+Create a Storage Sync Service:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
